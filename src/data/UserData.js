@@ -13,7 +13,7 @@ const UserData = [
   },
   {
     username: 'User 3',
-    avatar: 'https://lh3.googleusercontent.com/proxy/MfzhWkBd0PmbwafPzi9akJKcRQ_ZBUHSVnAJMvYdvyM50uwJ1jPioT0Ufbzj430yQyXGNE9Cs7ajIHvPU5nDqpJXVaiHFxOfTYftxfRSTzeJ09WNv_yYkDQnpy6xaWnR',
+    avatar: 'https://homeinthefingerlakes.com/wp-content/uploads/2020/04/Ducks-0025-718x1024.jpg.webp',
     postBannerColour: '#6DE8EE',
     uid: 'CQvdACjRnkhxLjJdUPiTSbMgBo72',
   },

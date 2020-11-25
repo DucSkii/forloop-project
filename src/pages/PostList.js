@@ -1,68 +1,78 @@
 import React, { useState, useEffect } from 'react'
-import CommentsData from '../data/CommentsData'
-import PostData from '../data/PostData'
-import UserData from '../data/UserData'
 import { Avatar, Typography, Paper } from '@material-ui/core'
 import { useStyles } from './styles'
+import { db } from '../firebase'
 
 const PostList = () => {
 
   const classes = useStyles()
   const [posts, setPosts] = useState([])
-
+  //posts
+  //user attached to post
   useEffect(() => {
-    let finalPost = []
+    const fetchedPosts = []
+    const promises = [] // postPromise to know when to run Promise.all func
+    db.collection("posts")
+      .get()
+      .then(postsSnapShot => { // gives snapshot of db
+        // reading collection returns array so need to loop
+        postsSnapShot.forEach(async (post) => { // async to have order inside the forEach
+          let currentPost = {}
 
-    PostData.forEach(post => {
-      let currentPost = {}
+          const fetchUser = db.doc(`/users/${post.data().uid}`).get()
+          console.log('PushFetchPromise')
+          promises.push(fetchUser) // pushes promises before we await otherwise it will be resolved automatically
+          const fetchComment = db.collection("comments").where("postId", "==", post.data().postId).get()
+          promises.push(fetchComment)
 
-      UserData.forEach(user => {
-        if (user.uid === post.uid) {
-          currentPost = {
-            username: user.username,
-            avatar: user.avatar,
-            postBannerColour: user.postBannerColour,
-            caption: post.caption,
-            image: post.image,
-            postId: post.postId,
-          }
-        }
-      })
-      currentPost.comments = []
-      CommentsData.forEach(comment => {
-        if (comment.postId === post.postId) {
-          UserData.forEach(user => {
-            if (user.uid === comment.uid) {
-              let confirmComment = {
-                username: user.username,
-                avatar: user.avatar,
-                text: comment.text,
-                postId: comment.postId,
-              }
-              currentPost.comments.push(confirmComment)
-            }
+          const user = await fetchUser // after this await is done it resolves the promise
+          const userComment = await fetchComment
+
+          currentPost = post.data() // setting post data and pushing it
+          currentPost.user = user.data()
+          currentPost.comments = []
+
+          userComment.forEach(comment => {
+            currentPost.comments.push(comment.data())
           })
-        }
-      })
-      finalPost.push(currentPost)
-    })
-    setPosts(finalPost)
+
+
+          console.log('pushed')
+          fetchedPosts.push(currentPost)
+          //comments foreachComment fetch user 
+        })
+        // this runs after the forEach but doesnt wait for the await within the forEach hence why we need the postPromise
+
+        console.log('checkPromise')
+        Promise.all(promises).then(() => { // this only runs after all the promises are resolved
+          console.log('settingPosts', fetchedPosts)
+          setPosts(fetchedPosts) // setsPost after everthing is pushed into fetchedPosts
+        })
+      }).catch(error => console.error('error', error))
   }, [])
 
+  // console.log('posts', posts)
+
+  if (!posts.length) {
+    return <div>loading...</div>
+  }
+  // return (
+  //   <div>{console.log('posts', posts)}</div>
+  // )
   return posts.map((post, index) => {
     return (
       <div key={index} className={classes.post}>
-        <Paper square variant='outlined' style={{ backgroundColor: post.postBannerColour }}>
+        <Paper square variant='outlined' style={{ backgroundColor: post.user.postBannerColour }}>
           <div className={classes.postHeader}>
-            <Avatar src={post.avatar} alt='Avatar' style={{ marginRight: '10px' }} />
-            <Typography variant='h4' style={{ fontSize: '15px' }}>{post.username}</Typography>
+            <Avatar src={post.user.avatar} alt='Avatar' style={{ marginRight: '10px' }} />
+            <Typography variant='h4' style={{ fontSize: '15px' }}>{post.user.username}</Typography>
           </div>
         </Paper>
         <div className={classes.postImage}>
           <img src={post.image} alt='' style={{ width: '100%' }} />
         </div>
         <div className={classes.postFooter}>
-          <Typography><strong>{post.username}</strong> {post.caption}</Typography>
+          <Typography><strong>{post.user.username}</strong> {post.caption}</Typography>
           {post.comments.map((comment, index) => {
             return (
               <div className={classes.comments} key={index}>
