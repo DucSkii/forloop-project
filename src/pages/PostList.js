@@ -12,6 +12,7 @@ const PostList = () => {
   useEffect(() => {
     const fetchedPosts = []
     const promises = [] // postPromise to know when to run Promise.all func
+    // const commentPromises = []
     db.collection("posts")
       .get()
       .then(postsSnapShot => { // gives snapshot of db
@@ -36,9 +37,22 @@ const PostList = () => {
             currentPost.comments.push(comment.data())
           })
 
-
-          console.log('pushed')
           fetchedPosts.push(currentPost)
+
+          // userComment.forEach(async (comment) => {
+          //   const getUser = db.doc(`/users/${comment.data().uid}`).get()
+          //   console.log('push comments promise')
+          //   commentPromises.push(getUser)
+          //   const userComment = await getUser
+          //   console.log('comments pushed')
+          //   currentPost.comments.push({ ...comment.data(), ...userComment.data() })
+          // })
+
+          // Promise.all(commentPromises).then(() => {
+          //   console.log('currentPost', currentPost)
+          //   console.log('pushed')
+          //   fetchedPosts.push(currentPost)
+          // })
           //comments foreachComment fetch user 
         })
         // this runs after the forEach but doesnt wait for the await within the forEach hence why we need the postPromise
@@ -51,6 +65,24 @@ const PostList = () => {
       }).catch(error => console.error('error', error))
   }, [])
 
+  const dataCollection = async () => {
+    db.doc(`/users2/hdgN9jQnkptFleAVkLOF`).update({
+      username: 'name5'
+    })
+    const queryComments = await db.collectionGroup("comments2").where("uid", "==", 'hdgN9jQnkptFleAVkLOF').get()
+    queryComments.docs.forEach(snapshot => {
+      snapshot.ref.update({
+        username: 'name5'
+      })
+    })
+    const queryPosts = await db.collectionGroup("posts2").where("uid", "==", 'hdgN9jQnkptFleAVkLOF').get()
+    queryPosts.docs.forEach(snapshot => {
+      snapshot.ref.update({
+        username: 'name5'
+      })
+    })
+  }
+
   // console.log('posts', posts)
 
   if (!posts.length) {
@@ -62,6 +94,7 @@ const PostList = () => {
   return posts.map((post, index) => {
     return (
       <div key={index} className={classes.post}>
+        <button onClick={dataCollection}>CLICK</button>
         <Paper square variant='outlined' style={{ backgroundColor: post.user.postBannerColour }}>
           <div className={classes.postHeader}>
             <Avatar src={post.user.avatar} alt='Avatar' style={{ marginRight: '10px' }} />

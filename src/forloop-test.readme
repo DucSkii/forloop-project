@@ -1,0 +1,38 @@
+ // useEffect(() => {
+  //   let finalPost = []
+
+  //   PostData.forEach(post => {
+  //     let currentPost = {}
+
+  //     UserData.forEach(user => {
+  //       if (user.uid === post.uid) {
+  //         currentPost = {
+  //           username: user.username,
+  //           avatar: user.avatar,
+  //           postBannerColour: user.postBannerColour,
+  //           caption: post.caption,
+  //           image: post.image,
+  //           postId: post.postId,
+  //         }
+  //       }
+  //     })
+  //     currentPost.comments = []
+  //     CommentsData.forEach(comment => {
+  //       if (comment.postId === post.postId) {
+  //         UserData.forEach(user => {
+  //           if (user.uid === comment.uid) {
+  //             let confirmComment = {
+  //               username: user.username,
+  //               avatar: user.avatar,
+  //               text: comment.text,
+  //               postId: comment.postId,
+  //             }
+  //             currentPost.comments.push(confirmComment)
+  //           }
+  //         })
+  //       }
+  //     })
+  //     finalPost.push(currentPost)
+  //   })
+  //   setPosts(finalPost)
+  // }, [])
